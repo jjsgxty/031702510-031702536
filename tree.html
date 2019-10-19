@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<HTML>
+<HEAD>
+	<TITLE> tree </TITLE>
+	<!-- 调用jquery和ztree -->
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" href="css/demo.css" type="text/css">
+	<link rel="stylesheet" href="css/zTreeStyle/zTreeStyle.css" type="text/css">
+	<script type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
+	<script type="text/javascript" src="js/jquery.ztree.core.js"></script>
+	<script type="text/javascript" src="js/jquery.ztree.exhide.min.js"></script>
+<style>
+body
+{
+	background-image:url('tupian.jpg');
+	background-repeat:no-repeat;
+    background-size:100%;
+}
+</style>
+<style>/*输入框样式设置*/
+	textarea
+	{
+	padding:10px 40px; 
+	background:#FFFFFF;
+	width:300px;
+	height:100px;
+    border-radius:25px;
+    box-shadow: 10px 10px 5px #888888;
+
+    display:block;
+    margin-left:auto;
+    margin-right:auto;   //文本框居中
+	}
+
+button {border-radius: 8px;     //按钮样式设置
+    background-color: rgba(240, 0, 0, 0); 
+    color: black; 
+position: absolute;
+    right: 380px;
+    width: 50px;
+    border: 3px solid #73AD21;
+   
+
+}
+button:hover {
+    background-color: #F5DEB3;
+    color: white;
+position: absolute;
+    right: 380px;
+    width:50px;
+    border: 3px solid #73AD21;
+
+</style>
+</HEAD>
+
+<BODY>
+<!-- 树的样式设置 -->
+<div class="content_wrap">
+	<div class="zTreeDemoBackground left">
+		<ul id="treeDemo" class="ztree" style = "padding:10px 40px; 
+	background:#FFFFFF;
+	width:300px;
+	height:300px;
+	border-radius:25px;
+    box-shadow: 10px 10px 5px #888888";></ul>
+	</div>
+</div>
+
+<textarea  type='text' id='iptTxt'></textarea><!-- 定义输入框 -->
+<button  type="button" onclick="submit()" >提交</button><!--定义"提交"按钮,点击调用"submit"函数-->
+
+<SCRIPT>
+	var zNodes=[];//存放Json格式对象的数组,作为节点
+	var count=0;//记录总输入的有效节点数
+
+	function submit()
+	{
+		var m,n,i=count,flag=0;
+		//获取输入数据
+		var tex=document.getElementById('iptTxt');
+		var a=tex.value;
+
+		var  arr= a.split(/：|、|\n/);//将输入数据分割并存入数组中
+		//将Json格式对象push进zNodes数组
+		for(i;i<arr.length+count;i++){
+			if(arr[i-count] == "")
+				continue;
+			else if(arr[i-count] == "导师"){
+				flag = 1;
+				continue;
+			}
+			//新建obj对象并赋值
+			var obj = new Object;
+			obj.id = i;
+			obj.name = arr[i-count];
+			//判断年级学历,符合要求的作为根节点的子节点
+            obj.icon = "siyecao.png";
+			var reg =new RegExp(/本科生|硕士生|博士生/);
+			if(reg.test(arr[i-count])){
+				flag = 2;
+				n = obj.id;//记录id作为其子节点的pId
+				obj.pId = m;//m为根节点的pId值
+			}
+			//flag==1即为导师姓名,作为根节点
+			else if(flag == 1){
+				obj.pId = 0;//根节点pId为0
+				flag = 0;
+				m = obj.id;//记录id作为其子节点的pId
+			}
+			//flag==2即为学生姓名,作为叶节点
+			else if(flag == 2)
+				obj.pId = n;
+
+			zNodes.push(obj);//将新建并赋值完成的obj对象push进zNodes数组
+		}
+	count = i;//
+	creatTree();//生成树
+	clear();//将输入框中提交过的数据清除
+	}
+	function creatTree(){
+		var setting = {
+				check: {
+					enable: true//checkbox
+				},
+				view: {
+					nameIsHTML: true, //allow html in node name for highlight use				
+					selectedMulti: false
+				},
+				edit: {
+					enable: false,
+					editNameSelectAll: false
+				},
+				data: {
+					simpleData: {
+						enable: true
+					}
+				}
+		};
+		$(document).ready(function(){
+			$.fn.zTree.init($("#treeDemo"), setting, zNodes);
+		});
+	}
+	function clear(){
+		document.getElementById("iptTxt").value="";
+	}
+	</SCRIPT>
+</BODY>
+</HTML>
